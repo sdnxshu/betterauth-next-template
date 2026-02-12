@@ -68,6 +68,31 @@ services:
     networks:
       - default_network
 
+  drizzle-studio:
+    image: oven/bun:alpine
+    container_name: drizzle-studio
+    restart: unless-stopped
+
+    working_dir: /app
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-app}
+
+    ports:
+      - "4983:4983"
+
+    volumes:
+      - .:/app
+
+    command: bunx drizzle-kit studio --host 0.0.0.0 --port 4983 --verbose
+
+    networks:
+      - default_network
+
 networks:
   default_network:
 
